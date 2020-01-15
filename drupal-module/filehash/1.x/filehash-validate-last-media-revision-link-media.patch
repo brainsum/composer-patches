@@ -1,0 +1,39 @@
+diff --git a/filehash.module b/filehash.module
+index 58058d6..8ca35a2 100644
+--- a/filehash.module
++++ b/filehash.module
+@@ -10,6 +10,7 @@ use Drupal\Core\Link;
+ use Drupal\Core\Url;
+ use Drupal\file\Entity\File;
+ use Drupal\file\FileInterface;
++use Drupal\media\Entity\Media;
+ 
+ /**
+  * Returns array of enabled hash algorithms.
+@@ -102,10 +103,13 @@ function filehash_validate_dedupe(FileInterface $file) {
+   if (!$file->id()) {
+     foreach (filehash_algos() as $algo) {
+       $query = \Drupal::database()->select('filehash');
++      $query->join('media_field_data', 'mfd', 'mfd.thumbnail__target_id = filehash.fid');
++      $query->addField('mfd', 'mid');
+       $query->addField('filehash', 'fid');
+       $query->condition($algo, $file->filehash[$algo]);
+       $query->range(0, 1);
+-      if ($fid = $query->execute()->fetchField()) {
++      $row = $query->execute()->fetchAssoc();
++      if ($fid = $row['fid']) {
+         $error = t('Sorry, duplicate files are not permitted.');
+         if (\Drupal::currentUser()->hasPermission('access files overview')) {
+           try {
+@@ -119,6 +123,11 @@ function filehash_validate_dedupe(FileInterface $file) {
+           }
+         }
+         $errors[] = $error;
++        $url = Url::fromRoute('entity.media.canonical', ['media' => $row['mid']], ['attributes' => ['target' => '_blank']]);
++        $error = t('This file is already used in media: %media.', [
++          '%media' => Link::fromTextAndUrl(Media::load($row['mid'])->label(), $url)->toString(),
++        ]);
++        $errors[] = $error;
+         break;
+       }
+     }
