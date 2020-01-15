@@ -1,0 +1,17 @@
+diff --git a/core/modules/jsonapi/src/Access/TemporaryQueryGuard.php b/core/modules/jsonapi/src/Access/TemporaryQueryGuard.php
+index 5c6c9c8d4e..cc0ac5027c 100644
+--- a/core/modules/jsonapi/src/Access/TemporaryQueryGuard.php
++++ b/core/modules/jsonapi/src/Access/TemporaryQueryGuard.php
+@@ -283,10 +283,10 @@ protected static function getAccessCondition($entity_type_id, CacheableMetadata
+         // Allow access only to public files and files uploaded by the current
+         // user.
+         // @see \Drupal\file\FileAccessControlHandler::checkAccess()
+-        $specific_condition = new EntityConditionGroup('OR', [
++        /*$specific_condition = new EntityConditionGroup('OR', [
+           new EntityCondition('uri', 'public://', 'STARTS_WITH'),
+           new EntityCondition('uid', $current_user->id()),
+-        ]);
++        ]);*/
+         $cacheability->addCacheTags($entity_type->getListCacheTags());
+         break;
+ 
